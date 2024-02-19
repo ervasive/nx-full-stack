@@ -58,26 +58,29 @@
       "options": {
         "engine": "docker",
         "context": "dist/apps/server",
-        "metadata": {
-          "images": ["server"],
-          "load": true,
-          "tags": [
-            "type=schedule",
-            "type=ref,event=branch",
-            "type=ref,event=tag",
-            "type=ref,event=pr",
-            "type=sha,prefix=sha-"
-          ]
-        }
+        "tags": [
+          "type=schedule",
+          "type=ref,event=branch",
+          "type=ref,event=tag",
+          "type=ref,event=pr",
+          "type=semver,pattern={{version}}",
+          "type=semver,pattern={{major}}.{{minor}}",
+          "type=semver,pattern={{major}}",
+          "type=sha"
+        ]
       },
       "configurations": {
         "local": {
-          "tags": ["mc-server:latest"],
-          "push": false
+          "load": true,
+          "metadata": {
+            "images": ["nx-full-stack-server"]
+          }
         },
         "production": {
-          "tags": ["ghcr.io/ervasive/mc-server:latest"],
-          "push": true
+          "push": true,
+          "metadata": {
+            "images": ["ghcr.io/ervasive/nx-full-stack-server"]
+          }
         }
       }
     }
