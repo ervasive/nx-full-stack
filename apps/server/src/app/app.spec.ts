@@ -15,6 +15,8 @@ describe('GET /', () => {
       url: '/',
     });
 
-    expect(response.json()).toEqual({ message: 'API message!' });
+    expect(response.json()).toEqual({
+      message: 'This is the message from a demo branch!',
+    });
   });
 });
