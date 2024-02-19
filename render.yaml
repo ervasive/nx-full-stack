@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: webdis
+    runtime: image
+    image:
+      url: ghcr.io/ervasive/nx-full-stack-server:main
+    region: frankfurt
+    plan: free
+    rootDir: webdis
+    healthCheckPath: /
+
+envVarGroups:
