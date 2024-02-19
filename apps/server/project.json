@@ -50,6 +50,36 @@
           "buildTarget": "server:build:production"
         }
       }
+    },
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "defaultConfiguration": "local",
+      "options": {
+        "engine": "docker",
+        "context": "dist/apps/server",
+        "metadata": {
+          "images": ["server"],
+          "load": true,
+          "tags": [
+            "type=schedule",
+            "type=ref,event=branch",
+            "type=ref,event=tag",
+            "type=ref,event=pr",
+            "type=sha,prefix=sha-"
+          ]
+        }
+      },
+      "configurations": {
+        "local": {
+          "tags": ["mc-server:latest"],
+          "push": false
+        },
+        "production": {
+          "tags": ["ghcr.io/ervasive/mc-server:latest"],
+          "push": true
+        }
+      }
     }
   },
   "tags": []
