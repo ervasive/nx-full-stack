@@ -14,7 +14,7 @@
     ],
     "sharedGlobals": []
   },
-  "nxCloudAccessToken": "YzRiNjRmOGQtMzMyOS00MGQ0LTk3Y2EtMTM1OTNjYzlhN2MwfHJlYWQtd3JpdGU=",
+  "nxCloudAccessToken": "MTUwZWJmODMtMzAxNC00MmZhLWE3Y2EtOWMxNTlmMTZhMGUyfHJlYWQ==",
   "targetDefaults": {
     "@nx/esbuild:esbuild": {
       "cache": true,

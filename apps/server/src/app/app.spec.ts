@@ -12,9 +12,9 @@ describe('GET /', () => {
   it('should respond with a message', async () => {
     const response = await server.inject({
       method: 'GET',
-      url: '/',
+      url: '/echo',
     });
 
-    expect(response.json()).toEqual({ message: 'API message!' });
+    expect(response.json()).toEqual({ message: 'Echo route' });
   });
 });

@@ -41,5 +41,6 @@ Thumbs.db
 # Env files
 .env
 .env.*
+nx-cloud.env
 
 .nx/cache
