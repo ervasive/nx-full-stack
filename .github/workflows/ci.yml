@@ -35,6 +35,7 @@ jobs:
       # This line is needed for nx affected to work when CI is running on a PR
       - run: git branch --track main origin/main
       - run: pnpm exec nx format:check
+      - run: pnpm devenv up -d
       - run: pnpm exec nx affected -t lint test build --parallel=3
 
       - uses: docker/login-action@v3
