@@ -22,16 +22,20 @@ jobs:
       - uses: pnpm/action-setup@v3
         with:
           version: 8
+
       # Cache node_modules
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
+
       - uses: nrwl/nx-set-shas@v4
 
-      - run: pnpm exec nx-cloud record -- nx format:check
-      - run: pnpm exec nx affected -t lint test build
+      # This line is needed for nx affected to work when CI is running on a PR
+      - run: git branch --track main origin/main
+      - run: pnpm exec nx format:check
+      - run: pnpm exec nx affected -t lint test build --parallel=3
 
       - uses: docker/login-action@v3
         with:
