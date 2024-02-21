@@ -2,7 +2,9 @@
   "name": "@nx-full-stack/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "devenv": "docker compose --file=compose.dev.yaml"
+  },
   "private": true,
   "devDependencies": {
     "@nx-tools/container-metadata": "^5.2.0",
@@ -38,6 +40,11 @@
     "axios": "^1.6.0",
     "fastify": "~4.13.0",
     "fastify-plugin": "~4.5.0",
+    "grafserv": "0.1.1-beta.8",
+    "graphile-migrate": "^1.4.1",
+    "graphql": "16.8.0",
+    "pg": "^8.11.3",
+    "postgraphile": "5.0.0-beta.21",
     "tslib": "^2.3.0"
   }
 }
