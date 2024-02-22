@@ -34,8 +34,9 @@
     "setup-tasks": {
       "executor": "nx:run-commands",
       "options": {
+        "cwd": "apps/database",
         "commands": [
-          "apps/database/scripts/setup.mjs",
+          "ts-node --project tsconfig.app.json src/setup.ts",
           "pnpm nx run database:cli reset --erase",
           "pnpm nx run database:cli reset --erase --shadow"
         ],

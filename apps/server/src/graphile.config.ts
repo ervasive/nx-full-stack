@@ -1,7 +1,9 @@
+import { getEnv } from '@/env';
 import { makePgService } from 'postgraphile/adaptors/pg';
 import { PostGraphileAmberPreset } from 'postgraphile/presets/amber';
 import { PostGraphileRelayPreset } from 'postgraphile/presets/relay';
-import { DATABASE_URL, IS_DEV, ROOT_DATABASE_URL } from './constants';
+
+const { IS_DEV, DATABASE_URL, ROOT_DATABASE_URL } = getEnv();
 
 const preset: GraphileConfig.Preset = {
   extends: [PostGraphileAmberPreset, PostGraphileRelayPreset],

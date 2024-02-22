@@ -1,32 +1,30 @@
 #!/usr/bin/env node
 
-import pg from 'pg';
+import { getEnv } from '@/env';
+import pg, { DatabaseError } from 'pg';
 import { setTimeout } from 'timers/promises';
 
 const {
   NODE_ENV,
-  DB_ROOT_USER,
-  DB_ROOT_PASS,
   DB_OWNER_USER,
   DB_OWNER_PASS,
   DB_AUTH_USER,
   DB_AUTH_PASS,
-  DB_HOST,
-  DB_PORT,
   DB_NAME,
   APP_VISITOR,
   APP_MANAGER,
   APP_ADMIN,
-} = process.env;
+  ROOT_DATABASE_URL,
+} = getEnv();
 
 async function main() {
   const pool = new pg.Pool({
-    connectionString: `postgres://${DB_ROOT_USER}:${DB_ROOT_PASS}@${DB_HOST}:${DB_PORT}/postgres`,
+    connectionString: ROOT_DATABASE_URL,
   });
 
   pool.on('error', (e) => {
     console.error(
-      'An error occurred whilst trying to talk to the database: ' + err.message
+      'An error occurred whilst trying to talk to the database: ' + e.message
     );
   });
 
@@ -34,6 +32,7 @@ async function main() {
 
   let attempts = 0;
 
+  /* eslint-disable-next-line */
   while (true) {
     try {
       await pool.query(`--sql
@@ -42,7 +41,8 @@ async function main() {
 
       break;
     } catch (e) {
-      if (e.code === '28P01') {
+      if (!(e instanceof Error)) return;
+      if (e instanceof DatabaseError && e.code === '28P01') {
         throw e;
       }
 
