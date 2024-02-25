@@ -23,6 +23,7 @@ type Env = ReturnType<typeof schema.parse> & {
   IS_DEV: boolean;
   ROOT_DATABASE_URL: string;
   DATABASE_URL: string;
+  TEST_DATABASE_URL: string;
 };
 
 let env: Env;
@@ -39,6 +40,7 @@ export function getEnv(): Env {
       IS_DEV: validated.NODE_ENV === 'development',
       ROOT_DATABASE_URL: `postgres://${validated.DB_ROOT_USER}:${validated.DB_ROOT_PASS}@${validated.DB_HOST}:${validated.DB_PORT}/postgres`,
       DATABASE_URL: `postgres://${validated.DB_AUTH_USER}:${validated.DB_AUTH_PASS}@${validated.DB_HOST}:${validated.DB_PORT}/${validated.DB_NAME}`,
+      TEST_DATABASE_URL: `postgres://${validated.DB_OWNER_USER}:${validated.DB_OWNER_PASS}@${validated.DB_HOST}:${validated.DB_PORT}/${validated.DB_NAME}_test`,
     };
   } catch (e) {
     if (e instanceof Error) {

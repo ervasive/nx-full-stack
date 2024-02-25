@@ -1,25 +1,26 @@
-#!/usr/bin/env node
-
-import { getEnv } from '@/env';
-import pg, { DatabaseError } from 'pg';
-import { setTimeout } from 'timers/promises';
+const { execSync } = require('child_process');
+const pg = require('pg');
+const { setTimeout } = require('timers/promises');
 
 const {
   NODE_ENV,
+  DB_ROOT_USER,
+  DB_ROOT_PASS,
   DB_OWNER_USER,
   DB_OWNER_PASS,
   DB_AUTH_USER,
   DB_AUTH_PASS,
+  DB_HOST,
   DB_NAME,
+  DB_PORT,
   APP_VISITOR,
   APP_MANAGER,
   APP_ADMIN,
-  ROOT_DATABASE_URL,
-} = getEnv();
+} = process.env;
 
 async function main() {
   const pool = new pg.Pool({
-    connectionString: ROOT_DATABASE_URL,
+    connectionString: `postgres://${DB_ROOT_USER}:${DB_ROOT_PASS}@${DB_HOST}:${DB_PORT}/postgres`,
   });
 
   pool.on('error', (e) => {
@@ -42,7 +43,8 @@ async function main() {
       break;
     } catch (e) {
       if (!(e instanceof Error)) return;
-      if (e instanceof DatabaseError && e.code === '28P01') {
+
+      if (e instanceof pg.DatabaseError && e.code === '28P01') {
         throw e;
       }
 
@@ -84,15 +86,16 @@ async function main() {
     // This is the root role for the database`);
     console.log('Creating root role...');
 
-    // IMPORTANT: don't grant SUPERUSER in production, we only need this so we can load the watch fixtures!
+    // IMPORTANT: don't grant SUPERUSER in production, we only need this so we
+    // can load the watch fixtures!
     await client.query(
       NODE_ENV === 'development'
         ? `create role ${DB_OWNER_USER} with login password '${DB_OWNER_PASS}' superuser`
         : `create role ${DB_OWNER_USER} with login password '${DB_OWNER_PASS}'`
     );
 
-    // These are the roles that PostGraphile will switch to
-    // (from ${DB_AUTH_USER}) during a GraphQL request
+    // These are the roles that PostGraphile will switch to (from DB_AUTH_USER)
+    // during a GraphQL request
     console.log('Creating application roles...');
 
     await client.query(`create role ${APP_VISITOR}`);
@@ -103,15 +106,27 @@ async function main() {
     await client.query(`create role ${APP_ADMIN}`);
     await client.query(`grant ${APP_VISITOR} to ${APP_ADMIN}`);
 
-    // This is the no-access role that PostGraphile will run as by default`);
     console.log('Creating auth role...');
-
+    // This is the no-access role that PostGraphile will run as by default`);
     await client.query(
       `create role ${DB_AUTH_USER} with login password '${DB_AUTH_PASS}' noinherit`
     );
+
     await client.query(`grant ${APP_VISITOR} to ${DB_AUTH_USER}`);
     await client.query(`grant ${APP_MANAGER} to ${DB_AUTH_USER}`);
     await client.query(`grant ${APP_ADMIN} to ${DB_AUTH_USER}`);
+
+    // Reset databases with graphile-migrate
+    const opts = {
+      encoding: 'utf-8',
+      stdio: 'inherit',
+    };
+
+    console.log('Resetting database...');
+    execSync('pnpm nx run database:cli reset --erase', opts);
+
+    console.log('Resetting shadow database...');
+    execSync('pnpm nx run database:cli reset --erase --shadow', opts);
   } finally {
     await client.release();
   }

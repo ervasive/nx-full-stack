@@ -11,40 +11,95 @@ permissions:
   contents: read
   packages: write
 
+env:
+  NODE_ENV: ${{ vars.NODE_ENV }}
+  DB_HOST: ${{ vars.DB_HOST }}
+  DB_NAME: ${{ vars.DB_NAME }}
+  DB_PORT: ${{ vars.DB_PORT }}
+  DB_ROOT_USER: ${{ vars.DB_ROOT_USER }}
+  DB_ROOT_PASS: ${{ vars.DB_ROOT_PASS }}
+  DB_OWNER_USER: ${{ vars.DB_OWNER_USER }}
+  DB_OWNER_PASS: ${{ vars.DB_OWNER_PASS }}
+  DB_AUTH_USER: ${{ vars.DB_AUTH_USER }}
+  DB_AUTH_PASS: ${{ vars.DB_AUTH_PASS }}
+  APP_VISITOR: ${{ vars.APP_VISITOR }}
+  APP_MANAGER: ${{ vars.APP_MANAGER }}
+  APP_ADMIN: ${{ vars.APP_ADMIN }}
+
 jobs:
   main:
     runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:latest
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: ${{ vars.DB_ROOT_USER }}
+          POSTGRES_PASSWORD: ${{ vars.DB_ROOT_PASS }}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout git repo
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 8
-
-      # Cache node_modules
-      - uses: actions/setup-node@v4
+      - name: Setup node of specific verison(s)
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
 
-      - uses: nrwl/nx-set-shas@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Set the base and head SHAs required for `nx affected` commands
+        uses: nrwl/nx-set-shas@v4
 
       # This line is needed for nx affected to work when CI is running on a PR
       - run: git branch --track main origin/main
-      - run: pnpm exec nx format:check
-      - run: pnpm devenv up -d
-      - run: pnpm exec nx affected -t lint test build --parallel=3
 
-      - uses: docker/login-action@v3
+      - name: Setup the database
+        run: pnpm nx run database:setup
+
+      - run: pnpm nx format:check
+      - run: pnpm nx affected -t lint test build --parallel=3
+
+      - name: Login to containers registry
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: docker/setup-buildx-action@v3
-      - run: pnpm exec nx affected --target=container --configuration=production --parallel=2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push images to GitHub Container Registry
+        run: pnpm nx affected --target=container --configuration=production --parallel=2
         env:
           INPUT_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

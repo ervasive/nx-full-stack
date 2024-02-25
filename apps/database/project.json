@@ -28,19 +28,8 @@
     "setup": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": ["pnpm devenv up -d", "pnpm nx run database:setup-tasks"]
-      }
-    },
-    "setup-tasks": {
-      "executor": "nx:run-commands",
-      "options": {
         "cwd": "apps/database",
-        "commands": [
-          "ts-node --project tsconfig.app.json src/setup.ts",
-          "pnpm nx run database:cli reset --erase",
-          "pnpm nx run database:cli reset --erase --shadow"
-        ],
-        "parallel": false
+        "command": "node setup-database.js"
       }
     }
   },
