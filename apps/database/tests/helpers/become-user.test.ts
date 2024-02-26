@@ -1,6 +1,6 @@
-import { withUserDb } from './helpers/helpers';
+import { withUserDb } from './with-db';
 
-describe('test helpers', () => {
+describe('becomeUser', () => {
   it('should create and become user', async () => {
     await withUserDb(async (client, user) => {
       expect(user).not.toBeNull();
