@@ -89,6 +89,13 @@ jobs:
       - run: pnpm nx format:check
       - run: pnpm nx affected -t lint test build --parallel=3
 
+  build-images:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: Set the base and head SHAs required for `nx affected` commands
+        uses: nrwl/nx-set-shas@v4
+
       - name: Login to containers registry
         uses: docker/login-action@v3
         with:
