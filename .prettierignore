@@ -4,3 +4,4 @@
 /generated
 /.nx/cache
 pnpm-lock.yaml
+graphql-env.d.ts

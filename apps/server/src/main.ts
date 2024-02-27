@@ -1,4 +1,4 @@
-import { getEnv } from '@/env';
+import { getEnv } from '@/common';
 import Fastify from 'fastify';
 import { app } from './app/app';
 

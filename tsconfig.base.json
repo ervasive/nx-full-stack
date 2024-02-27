@@ -16,9 +16,14 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@/env": ["libs/shared/env/src/index.ts"],
-      "@/admin-common": ["libs/admin/common/src/index.ts"],
-      "@/admin-common/server": ["libs/admin/common/src/server.ts"]
+      "@/admin-ui": ["libs/admin/ui/src/index.ts"],
+      "@/admin-ui/client": ["libs/admin/ui/src/client.ts"],
+      "@/admin-ui/global-styles.css": [
+        "libs/admin/ui/src/lib/configuration/global-styles.css"
+      ],
+      "@/common": ["libs/common/src/index.ts"],
+      "@/storefront-ui": ["libs/storefront/ui/src/index.ts"],
+      "@/storefront-ui/client": ["libs/storefront/ui/src/client.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -1,0 +1,8 @@
+{
+  "name": "storefront-ui",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/storefront/ui/src",
+  "projectType": "library",
+  "tags": ["storefront", "ui"],
+  "targets": {}
+}

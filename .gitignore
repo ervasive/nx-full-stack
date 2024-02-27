@@ -41,9 +41,12 @@ Thumbs.db
 # Env files
 .env
 .env.*
+!.env.example
 nx-cloud.env
 
 .nx/cache
 
 # Next.js
 .next
+
+storybook-static

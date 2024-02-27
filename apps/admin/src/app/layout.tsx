@@ -1,8 +1,9 @@
-import './global.css';
+import { fonts } from '@/admin-ui';
+import '@/admin-ui/global-styles.css';
 
 export const metadata = {
-  title: 'Welcome to Admin',
-  description: 'Dashboard application for managing products',
+  title: 'Welcome to Storefront',
+  description: 'Storefront application',
 };
 
 export default function RootLayout({
@@ -12,7 +13,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body
+        style={{ background: 'black' }}
+        className={`${fonts.base.variable} ${fonts.mono.variable} dark`}
+      >
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,4 +1,4 @@
-import { getEnv } from '@/env';
+import { getEnv } from '@/common';
 import { makePgService } from 'postgraphile/adaptors/pg';
 import { PostGraphileAmberPreset } from 'postgraphile/presets/amber';
 import { PostGraphileRelayPreset } from 'postgraphile/presets/relay';
@@ -36,6 +36,7 @@ const preset: GraphileConfig.Preset = {
       return {
         pgSettings: {
           ...args.contextValue?.pgSettings,
+          role: 'visitor',
         },
       };
     },
