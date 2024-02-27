@@ -1,0 +1,7 @@
+{
+  "name": "admin-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/admin-e2e/src",
+  "targets": {},
+  "implicitDependencies": ["admin"]
+}

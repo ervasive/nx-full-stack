@@ -44,3 +44,6 @@ Thumbs.db
 nx-cloud.env
 
 .nx/cache
+
+# Next.js
+.next
