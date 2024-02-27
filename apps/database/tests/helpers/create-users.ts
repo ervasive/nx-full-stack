@@ -1,8 +1,6 @@
-import { getEnv } from '@/env';
+import { beforeEach, expect } from '@jest/globals';
 import { PoolClient } from 'pg';
-import { User } from './types';
-
-const { APP_VISITOR } = getEnv();
+import { UserDetails } from './types';
 
 let userCreationCounter = 0;
 
@@ -23,9 +21,9 @@ beforeEach(() => {
  */
 export async function createUsers(
   client: PoolClient,
-  { count = 1, role = APP_VISITOR }: { count?: number; role?: string } = {}
+  { count = 1, role }: { count?: number; role?: string } = {}
 ) {
-  const users: User[] = [];
+  const users: UserDetails[] = [];
 
   if (userCreationCounter > 25) {
     throw new Error('Too many users created!');
@@ -35,21 +33,49 @@ export async function createUsers(
     const userLetter = 'abcdefghijklmnopqrstuvwxyz'[userCreationCounter];
     const email = `${userLetter}${i || ''}@b.c`;
     const password = userLetter.repeat(12);
-    const user = (
-      await client.query<User>(
+    let id: string;
+
+    if (role) {
+      const result = (
+        await client.query<{ id: string }>(
+          `--sql
+            select id from app_private.create_user($1, $2, $3, $4, $5)
+          `,
+          [email, password, `testuser_${userLetter}`, null, role]
+        )
+      ).rows[0];
+
+      id = result.id;
+    } else {
+      const result = (
+        await client.query<{ id: string }>(
+          `--sql
+            select id from app_private.create_user($1, $2, $3)
+          `,
+          [email, password, `testuser_${userLetter}`]
+        )
+      ).rows[0];
+
+      id = result.id;
+    }
+
+    expect(id).not.toBeNull();
+
+    const details = (
+      await client.query<{
+        id: string;
+        username: string;
+        email: string;
+        role: string;
+      }>(
         `--sql
-          select * from app_private.create_user($1, $2, $3, $4, $5)
+          select * from app_private.user_details where id = $1
         `,
-        [email, password, `testuser_${userLetter}`, null, role]
+        [id]
       )
     ).rows[0];
 
-    expect(user.id).not.toBeNull();
-
-    user._email = email;
-    user._password = password;
-    user._role = role;
-    users.push(user);
+    users.push({ ...details, password });
 
     userCreationCounter++;
   }

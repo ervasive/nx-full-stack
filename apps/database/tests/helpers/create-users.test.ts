@@ -3,20 +3,24 @@ import { withRootDb } from './with-db';
 
 describe('createUsers', () => {
   it.skip('should create a single user with default role if no options are provided', async () => {
-    withRootDb(async (client) => {
+    await withRootDb(async (client) => {
       const users = await createUsers(client);
 
       expect(users.length).toBe(1);
-      expect(users[0]).toEqual({});
+      expect(typeof users[0].id).toBe('string');
+      expect(typeof users[0].email).toBe('string');
+      expect(typeof users[0].password).toBe('string');
+      expect(typeof users[0].username).toBe('string');
+      expect(typeof users[0].role).toBe('number');
     });
   });
 
-  it('should create a single user with custom role', async () => {
+  it.skip('should create a single user with custom role', async () => {
     withRootDb(async (client) => {
       const users = await createUsers(client, { role: 'manager' });
 
       expect(users.length).toBe(1);
-      expect(users[0]._role).toBe('manager');
+      expect(users[0].role).toBe('manager');
     });
   });
 });

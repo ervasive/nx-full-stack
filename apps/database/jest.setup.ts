@@ -10,7 +10,7 @@ process.env.NODE_ENV = 'test';
 const watchMode = process.argv.indexOf('--watch') > -1;
 let executed = false;
 
-export default async function setup() {
+export default function setup() {
   if (executed) return;
 
   // reset the test database

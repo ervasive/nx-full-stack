@@ -1,11 +1,15 @@
 import { PoolClient } from 'pg';
 
-export type User = {
+export type UserDetails = {
   id: string;
   username: string;
-  _email: string;
-  _password?: string;
-  _role: string;
+  email: string;
+  role: string;
+  password: string;
 };
 
 export type ClientCallback<T = any> = (client: PoolClient) => Promise<T>;
+export type ClientWithUserCallback<T = any> = (
+  client: PoolClient,
+  user: UserDetails
+) => Promise<T>;

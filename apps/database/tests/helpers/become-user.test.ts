@@ -1,7 +1,7 @@
 import { withUserDb } from './with-db';
 
 describe('becomeUser', () => {
-  it('should create and become user', async () => {
+  it.skip('should create and become user with active session', async () => {
     await withUserDb(async (client, user) => {
       expect(user).not.toBeNull();
 

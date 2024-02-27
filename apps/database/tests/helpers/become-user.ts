@@ -1,6 +1,14 @@
+import { getEnv } from '@/env';
 import { PoolClient } from 'pg';
-import { createSession } from './create-session';
-import { User } from './types';
+import { UserDetails } from './types';
+
+const { APP_VISITOR } = getEnv();
+
+let userSessionsCounter = 0;
+
+beforeEach(() => {
+  userSessionsCounter = 0;
+});
 
 /**
  * Become user with active session
@@ -10,40 +18,36 @@ import { User } from './types';
  *
  * @returns void
  */
-export async function becomeUser(
-  client: PoolClient,
-  userOrUserId: User | string | null
-) {
-  let user: User;
-
-  const session = userOrUserId
-    ? await createSession(
-        client,
-        typeof userOrUserId === 'string' ? userOrUserId : userOrUserId.id
-      )
-    : null;
-
-  if (!userOrUserId || typeof userOrUserId === 'string') {
-    const result = await client.query<User>(
+export async function becomeUser(client: PoolClient, user: UserDetails | null) {
+  if (user) {
+    const {
+      rows: [session],
+    } = await client.query<{ id: string }>(
       `--sql
-        select * from app_public.users where id = $1
+        insert into app_private.user_sessions (id, user_id, expires_at)
+          values ($1, $2::uuid, now() + interval '1 day') returning *
       `,
-      [userOrUserId]
+      [`session-id-${userSessionsCounter++}`, user.id]
     );
 
-    user = result.rows[0];
-  } else {
-    user = userOrUserId;
-  }
+    if (!session) return;
 
-  if (session) {
     await client.query(
       `--sql
         select
           set_config('role', $1::text, true),
           set_config('jwt.claims.session_id', $2::text, true)
       `,
-      [user._role, session.id]
+      [user.role, session.id]
+    );
+  } else {
+    await client.query(
+      `--sql
+        select
+          set_config('role', $1::text, true),
+          set_config('jwt.claims.session_id', null, true)
+      `,
+      [APP_VISITOR]
     );
   }
 }

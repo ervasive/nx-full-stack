@@ -1,16 +1,17 @@
 import { getEnv } from '@/env';
-import { DatabaseError, PoolClient } from 'pg';
-import { becomeUser } from './become-user';
+import { DatabaseError } from 'pg';
+import { becomeUser } from '.';
 import { createUsers } from './create-users';
 import { poolFromUrl } from './pool-from-url';
-import { ClientCallback, User } from './types';
+import { ClientCallback, ClientWithUserCallback } from './types';
 
-const { TEST_DATABASE_URL } = getEnv();
+const { TEST_DATABASE_URL, APP_VISITOR } = getEnv();
 
 /**
+ * Initiate database queries within a transaction with automatic clean up
  *
- * @param url
- * @param fn
+ * @param url - database connection string
+ * @param fn - client callback
  */
 async function withDbFromUrl<T>(url: string, fn: ClientCallback<T>) {
   const pool = poolFromUrl(url);
@@ -30,11 +31,11 @@ async function withDbFromUrl<T>(url: string, fn: ClientCallback<T>) {
     await client.query(`rollback`);
     await client.query(`reset all`);
     await client.release();
-    await pool.end();
   }
 }
 
 /**
+ * Issue queries as database owner
  *
  * @param fn
  * @returns
@@ -44,6 +45,7 @@ export function withRootDb<T>(fn: ClientCallback<T>) {
 }
 
 /**
+ * Issue queries as anonymous user
  *
  * @param fn
  * @returns
@@ -56,17 +58,28 @@ export function withAnonymousDb<T>(fn: ClientCallback<T>) {
 }
 
 /**
+ * Issue queries as logged in user
  *
  * @param fn
  * @returns
  */
+export function withUserDb<T>(fn: ClientWithUserCallback<T>): Promise<void>;
 export function withUserDb<T>(
-  fn: (client: PoolClient, user: User) => Promise<T>
-) {
-  return withRootDb(async (client) => {
-    const [user] = await createUsers(client);
+  userRole: string,
+  fn: ClientWithUserCallback
+): Promise<void>;
+export function withUserDb<T>(
+  roleOrFn: string | ClientWithUserCallback,
+  fn?: ClientWithUserCallback
+): Promise<void> {
+  const userRole = typeof roleOrFn === 'string' ? roleOrFn : APP_VISITOR;
+  const handler =
+    typeof roleOrFn === 'string' ? fn || (() => undefined) : roleOrFn;
 
-    await becomeUser(client, user.id);
-    await fn(client, user);
+  return withRootDb(async (client) => {
+    const [user] = await createUsers(client, { role: userRole });
+
+    await becomeUser(client, user);
+    await handler(client, user);
   });
 }
