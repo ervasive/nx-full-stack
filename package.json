@@ -2,7 +2,9 @@
   "name": "@nx-full-stack/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "devenv": "docker compose --file=compose.dev.yaml"
+  },
   "private": true,
   "devDependencies": {
     "@nx-tools/container-metadata": "^5.2.0",
@@ -19,6 +21,7 @@
     "@swc/helpers": "~0.5.2",
     "@types/jest": "^29.4.0",
     "@types/node": "~18.16.9",
+    "@types/pg": "^8.11.1",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
     "esbuild": "^0.19.2",
@@ -29,15 +32,22 @@
     "nx": "18.0.4",
     "prettier": "^2.6.2",
     "ts-jest": "^29.1.0",
-    "ts-node": "10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "~5.3.2"
   },
   "dependencies": {
     "@fastify/autoload": "~5.7.1",
     "@fastify/sensible": "~5.2.0",
+    "@jest/globals": "^29.7.0",
     "axios": "^1.6.0",
     "fastify": "~4.13.0",
     "fastify-plugin": "~4.5.0",
-    "tslib": "^2.3.0"
+    "grafserv": "0.1.1-beta.8",
+    "graphile-migrate": "^1.4.1",
+    "graphql": "16.8.0",
+    "pg": "^8.11.3",
+    "postgraphile": "5.0.0-beta.21",
+    "tslib": "^2.3.0",
+    "zod": "^3.22.4"
   }
 }

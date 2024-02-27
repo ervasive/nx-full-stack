@@ -1,0 +1,37 @@
+{
+  "name": "database",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/database/src",
+  "projectType": "application",
+  "targets": {
+    "cli": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "graphile-migrate",
+        "cwd": "apps/database"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "configurations": {
+        "development": {
+          "commands": ["pnpm devenv start", "pnpm nx run database:cli watch"],
+          "dev": true
+        },
+        "production": {
+          "commands": ["pnpm nx run database:cli migrate"],
+          "dev": false
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "setup": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/database",
+        "command": "node setup-database.js"
+      }
+    }
+  },
+  "tags": []
+}
