@@ -1,0 +1,8 @@
+{
+  "name": "storefront-i18n",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/storefront/i18n/src",
+  "projectType": "library",
+  "tags": ["storefront", "i18n"],
+  "targets": {}
+}

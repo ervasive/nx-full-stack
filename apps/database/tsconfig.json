@@ -1,10 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "esModuleInterop": true,
-    "moduleResolution": "NodeNext",
-    "module": "NodeNext"
-  },
+  "compilerOptions": {},
   "files": [],
   "include": [],
   "references": [
